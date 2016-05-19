@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.firebasedemo.arunangshupal.chatappfirebase.bean.MessageBean;
 import com.firebasedemo.arunangshupal.chatappfirebase.receiver.MessageReceiver;
 import com.firebasedemo.arunangshupal.chatappfirebase.util.AppConstant;
 import com.firebasedemo.arunangshupal.chatappfirebase.util.AppUrl;
+import com.firebasedemo.arunangshupal.chatappfirebase.util.MessageCurd;
 import com.firebasedemo.arunangshupal.chatappfirebase.util.Utility;
 import com.google.gson.Gson;
 
@@ -117,16 +119,19 @@ public class ChatFragment extends Fragment {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MessageBean msg= new MessageBean();
-                msg.setFromPhoneNumber(myContact.getPhoneNumber());
-                msg.setToPhoneNumber(contactBean.getPhoneNumber());
-                msg.setMessage(msgTxt.getText().toString());
-                msg.setSysTime(System.currentTimeMillis());
-                messageList.add(msg);
-                messageListAdapter.notifyDataSetChanged();
-                Firebase firebaseRef=homeActivity.getFirebaseRef().child(AppUrl.MESSAGE_INBOX).child(msg.getToPhoneNumber().toString());
-                firebaseRef.push().setValue(msg);
-                msgTxt.setText("");
+                if (!TextUtils.isEmpty(msgTxt.getText().toString())) {
+                    MessageBean msg = new MessageBean();
+                    msg.setFromPhoneNumber(myContact.getPhoneNumber());
+                    msg.setToPhoneNumber(contactBean.getPhoneNumber());
+                    msg.setMessage(msgTxt.getText().toString());
+                    msg.setSysTime(System.currentTimeMillis());
+                    messageList.add(msg);
+                    messageListAdapter.notifyDataSetChanged();
+                    Firebase firebaseRef = homeActivity.getFirebaseRef().child(AppUrl.MESSAGE_INBOX).child(msg.getToPhoneNumber().toString());
+                    firebaseRef.push().setValue(msg);
+                    new MessageCurd(homeActivity).addMessage(messageBean);
+                    msgTxt.setText("");
+                }
             }
         });
 
